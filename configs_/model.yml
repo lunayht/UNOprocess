@@ -1,0 +1,10 @@
+model_name: !!str ast # resnetN, ast
+from_checkpoint:
+
+imgnet_pretrain: True
+kwargs_:
+    audioset_pretrain: False
+    pool: avgpool
+    fstride: 10
+    tstride: 10
+    model_size: "tiny224" # tiny224, small224, base224, base384

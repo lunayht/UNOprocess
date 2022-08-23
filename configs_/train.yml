@@ -1,0 +1,22 @@
+project_name: !!str respiratory_sound_classification
+
+gpus: 1
+seed: 1234
+wandb: True  # if False, Tensorboard is used
+val_check_interval: 1
+save_stats_dir: !!str checkpoints
+onnx: False
+
+max_epochs: 10
+lr: !!float 1e-4
+
+loss: !!str CrossEntropyLoss
+optimizer: !!str Adam
+lr_scheduler: !!str CosineAnnealingWarmRestarts
+
+kwargs_:
+    pre_rec_fbeta: !!float 1.0
+    lr_scheduler_args: {"T_0": 40, "eta_min": !!float 3e-6}
+    wandb_tags: []
+    weighted_criterion: False
+    weight_decay: !!float 5e-7

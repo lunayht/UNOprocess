@@ -1,0 +1,13 @@
+frontend_name: !!str mel
+target_sample_rate: 16000
+n_mels: 32
+nfft: 401
+hop_length: 160
+win_length:
+spec_width: 512
+mixup_alpha: !!float 10.0
+wav_aug_kwargs:
+
+spec_aug_kwargs:
+  tm: 24
+  fm: 10
