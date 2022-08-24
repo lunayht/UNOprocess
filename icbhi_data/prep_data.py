@@ -25,6 +25,36 @@ def resample_wav(
         print("\t", out_path)
 
 
+def slice_wav_into_segments(
+    root: str,
+    ori_data_list: List[str],
+    target_data_path: str,
+    sample_rate: int,
+    slice_sec: Union[int, float],
+) -> None:
+    r"""Slice raw waveform into segments according to the target slice seconds.
+
+    Args:
+        root: Path to the root directory of the original .wav data.
+        ori_data_list: List of original .wav filenames.
+        target_data_path: Target path to save resampled .wav files.
+        sample_rate: Target sample rate of the audio.
+        slice_sec: Slice original wav files into segments of this duration. (in seconds)
+    """
+    for ori_wav_name in ori_data_list:
+        ori_wav_path = os.path.join(root, ori_wav_name)
+        ori_wav, _ = librosa.load(ori_wav_path, sr=sample_rate, res_type="kaiser_fast")
+        num_segments = ori_wav.shape[0] // (sample_rate * slice_sec)
+        for segment_count in range(num_segments):
+            start = segment_count * sample_rate * slice_sec
+            end = (segment_count + 1) * sample_rate * slice_sec
+            wav_chunk = ori_wav[start:end]
+            chunk_name = f"{ori_wav_name.split('.')[0]}_{segment_count}.wav"
+            chunk_path = os.path.join(target_data_path, chunk_name)
+            soundfile.write(chunk_path, wav_chunk, samplerate=sample_rate)
+            print("\t", chunk_path)
+
+
 def slice_wav_into_breathing_cycle(
     root: str,
     ori_data_list: List[str],
@@ -87,12 +117,12 @@ def args_parser() -> argparse.Namespace:
         type=str,
         default=None,
         metavar="PATH",
-        help="path that contains original .txt annotation files. Note: can be the same folder as original .wav",
+        help="Path that contains original .txt annotation files. Note: can be the same folder as original .wav",
     )
     parser.add_argument(
         "--slice",
         action="store_true",
-        help="slice original wav files into chunks",
+        help="Slice original wav files into chunks",
     )
     parser.add_argument(
         "--target-sample-rate",
@@ -100,7 +130,12 @@ def args_parser() -> argparse.Namespace:
         default=16000,
         help="Target sample rate of the audio. (default: 16000)",
     )
-    parser.add_argument("--slice_sec", type=Union[float, int], default=None, help="")
+    parser.add_argument(
+        "--slice_sec",
+        type=Union[float, int],
+        default=8,
+        help="Slice original wav files into segments of this duration. (in seconds, default: 8)",
+    )
     return parser.parse_args()
 
 
@@ -111,25 +146,31 @@ if __name__ == "__main__":
         lambda file: file.endswith(".wav"), os.listdir(args.ori_data_path)
     )
 
-    if not os.path.exists(args.target_data_path):
-        os.makedirs(args.target_data_path)
+    if not os.path.exists(args.output_path):
+        os.makedirs(args.output_path)
 
     if args.slice:
+        print(f"Slice original wav files into chunks...")
         if args.ori_txt_path is None:
-            raise ValueError(
-                "Please specify the path of original .txt annotation files."
+            slice_wav_into_segments(
+                root=args.ori_data_path,
+                ori_data_list=ori_data_list,
+                target_data_path=args.output_path,
+                sample_rate=args.target_sample_rate,
+                slice_sec=args.slice_sec,
             )
-        slice_wav_into_breathing_cycle(
-            root=args.ori_data_path,
-            ori_data_list=ori_data_list,
-            target_data_path=args.target_data_path,
-            ann_txt_path=args.ori_txt_path,
-            sample_rate=args.target_sample_rate,
-        )
+        else:
+            slice_wav_into_breathing_cycle(
+                root=args.ori_data_path,
+                ori_data_list=ori_data_list,
+                target_data_path=args.output_path,
+                ann_txt_path=args.ori_txt_path,
+                sample_rate=args.target_sample_rate,
+            )
     else:
         resample_wav(
             root=args.ori_data_path,
             ori_data_list=ori_data_list,
-            target_data_path=args.target_data_path,
+            target_data_path=args.output_path,
             sample_rate=args.target_sample_rate,
         )
