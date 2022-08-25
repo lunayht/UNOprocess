@@ -1,6 +1,6 @@
 import os
-from typing import Tuple, Union
 from functools import lru_cache
+from typing import Tuple, Union
 
 import cv2
 import librosa
