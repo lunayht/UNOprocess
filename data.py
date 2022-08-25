@@ -27,7 +27,7 @@ class AudioDataset(Dataset):
         mode: str = "train",
         get_weights: bool = False,
     ) -> None:
-        super(AudioDataset, self).__init__()
+        super().__init__()
 
         assert len(signals) and len(labels) > 0, "signals and/or labels list is empty."
         assert mode in [
