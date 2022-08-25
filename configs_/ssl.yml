@@ -10,7 +10,7 @@ target_sample_rate: 16000
 n_mels: 32
 nfft: 401
 hop_length: 160
-win_length: 
+win_length:
 
 max_epochs: 100
 lr: !!float 1e-5

@@ -33,7 +33,8 @@ class AudioDataset(Dataset):
         assert mode in [
             "train",
             "test",
-        ], "mode must be either 'train' or 'test'."
+            "ssl",
+        ], "mode must be either 'train', 'test' or 'ssl'."
 
         self.root = root
         self.signals = signals
