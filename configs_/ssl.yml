@@ -1,0 +1,29 @@
+project_name: !!str exp_ssl
+gpus: [0]
+seed: 1234
+wandb: True  # if False, Tensorboard is used
+num_workers: 8
+save_stats_dir: !!str ssl_checkpoints
+wavs_dir: !!str /home/ncl/yh/odio/datasets/lung/icbhi_16k
+
+target_sample_rate: 16000
+n_mels: 32
+nfft: 401
+hop_length: 160
+win_length: 
+
+max_epochs: 100
+lr: !!float 1e-5
+batch_size: 8
+optimizer: !!str Adam
+num_classes: 4
+
+model: !!str ast
+imgnet_pretrain: True
+hidden_layer: "to_latent"
+projection_hidden_size: 2048
+projection_size: 256
+use_momentum: True
+
+spec_width_1: 700
+spec_width_2: 512
