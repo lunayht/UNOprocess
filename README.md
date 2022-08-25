@@ -15,3 +15,8 @@ conda activate uno_pl
 ```
 ## Dataset
 Please refer to `icbhi_data/` for the data preparation and preprocessing.
+
+## Acknowledgements
+1. AST model: https://github.com/YuanGongND/ast/blob/master/src/models/ast_models.py
+2. ResNet model: https://github.com/hche11/VGGSound/blob/master/models/resnet.py 
+2. Non-Constrastive Self-Supervised Learning: https://github.com/lucidrains/byol-pytorch
