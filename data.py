@@ -73,7 +73,7 @@ class AudioDataset(Dataset):
                 )
             )
             if self.frontend_configs.wav_aug_kwargs:
-                raise NotImplementedError
+                raise NotImplementedError  # add audio augmentation manually if needed.
         else:
             transform.append(
                 VT.CenterCrop(

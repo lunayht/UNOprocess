@@ -7,11 +7,9 @@ import timm
 import torch
 import torch.nn as nn
 import wget
-from torch.cuda.amp import autocast
 from timm.models.layers import to_2tuple, trunc_normal_
-
+from torch.cuda.amp import autocast
 from torchsummary import summary
-
 
 os.environ["TORCH_HOME"] = "../../pretrained_models"
 

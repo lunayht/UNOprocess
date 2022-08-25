@@ -8,8 +8,8 @@ import randomname
 import torch
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
-from configs_.arguments import *
 
+from configs_.arguments import *
 from pipeline import UNOModule
 
 
