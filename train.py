@@ -6,7 +6,7 @@ import pytorch_lightning as pl
 import randomname
 import torch
 
-from configs_.arguments import *
+from configs_ import yaml_to_args
 from pipeline import TaskEvaluationModule
 
 from misc.utils import *

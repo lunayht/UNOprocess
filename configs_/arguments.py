@@ -121,12 +121,15 @@ class NCSSLArguments:
     model: str = field(default="ast")
     imgnet_pretrain: bool = field(default=True)
     hidden_layer: Union[str, int] = field(default="to_latent")
-    projection_hidden_szie: int = field(default=2560)
+    projection_hidden_size: int = field(default=2560)
     projection_size: int = field(default=256)
     use_momentum: bool = field(default=True)
+    dropout: float = field(default=0.5)
 
     spec_width_1: int = field(default=700)
     spec_width_2: int = field(default=512)
+    time_masking: int = field(default=50)
+    freq_masking: int = field(default=10)
 
     configuration: InitVar[Dict] = field(default=dict())
 

@@ -24,6 +24,9 @@ hidden_layer: "to_latent"
 projection_hidden_size: 2048
 projection_size: 256
 use_momentum: True
+dropout: !!float 0.5
 
 spec_width_1: 700
 spec_width_2: 512
+time_masking: 50
+freq_masking: 10

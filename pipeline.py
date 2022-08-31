@@ -5,14 +5,18 @@ from typing import Any, Dict, List, Optional, OrderedDict, Tuple, Union
 import numpy as np
 import pytorch_lightning as pl
 import torch
+import torch.nn as nn
+import torchaudio.transforms as AT
+import torchvision.transforms as VT
 import wandb
 from torch.utils.data import DataLoader
 
 import models
-from configs_.arguments import (DataArguments, FrontendArguments,
-                                ModelArguments, TrainArguments)
+from configs_ import (DataArguments, FrontendArguments, ModelArguments,
+                      NCSSLArguments, TrainArguments)
 from data import AudioDataset
 from misc.eval import Evaluation_Metrics
+from src.nc_ssl import NonContrastiveSSL
 
 
 class TaskEvaluationModule(pl.LightningModule):
@@ -329,3 +333,39 @@ class TaskEvaluationModule(pl.LightningModule):
     ) -> torch.Tensor:
         mixup_loss = lam * criterion(pred, y_a) + (1 - lam) * criterion(pred, y_b)
         return mixup_loss.mean()
+
+
+class NCSSLPretrainModule(pl.LightningModule):
+    def __init__(self, configs: NCSSLArguments, train_wavs: List[str]) -> None:
+        super().__init__()
+
+        self.configs = configs
+        self.train_wavs = train_wavs
+
+        encoder_model = getattr(models, self.configs.model)(
+            n_mels=self.configs.n_mels,
+            seq_length=self.configs.spec_width_2,
+            num_classes=self.configs.num_classes,
+            imgnet_pretrain=self.configs.imgnet_pretrain,
+        )
+
+        augment_1 = nn.Sequential(
+            VT.RandomCrop(size=(self.configs.n_mels, self.configs.spec_width_2)),
+        )
+        augment_2 = nn.Sequential(
+            VT.RandomCrop(size=(self.configs.n_mels, self.configs.spec_width_2)),
+            AT.TimeMasking(time_mask_param=self.configs.time_masking),
+            AT.FrequencyMasking(freq_mask_param=self.configs.freq_masking),
+        )
+
+        self.learner = NonContrastiveSSL(
+            net=encoder_model,
+            spec_size=(self.configs.n_mels, self.configs.spec_width_2),
+            hidden_layer=self.configs.hidden_layer,
+            projection_size=self.configs.projection_size,
+            projection_hidden_size=self.configs.projection_hidden_size,
+            augment_fn=augment_1,
+            augment_fn_2=augment_2,
+            use_momentum=self.configs.use_momentum,
+            dropout=self.configs.dropout,
+        )
