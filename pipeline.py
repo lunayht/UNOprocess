@@ -9,17 +9,13 @@ import wandb
 from torch.utils.data import DataLoader
 
 import models
-from configs_.arguments import (
-    DataArguments,
-    FrontendArguments,
-    ModelArguments,
-    TrainArguments,
-)
+from configs_.arguments import (DataArguments, FrontendArguments,
+                                ModelArguments, TrainArguments)
 from data import AudioDataset
-from eval import Evaluation_Metrics
+from misc.eval import Evaluation_Metrics
 
 
-class UNOModule(pl.LightningModule):
+class TaskEvaluationModule(pl.LightningModule):
     def __init__(
         self,
         model_configs: ModelArguments,

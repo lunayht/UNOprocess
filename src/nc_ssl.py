@@ -9,6 +9,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio.transforms as AT
 
+from uno import UNO
+
 
 class ExponentialMovingAverage:
     def __init__(self, beta: float = 0.99) -> None:
@@ -165,12 +167,20 @@ class NonContrastiveSSL(nn.Module):
             projection_hidden_size=projection_hidden_size,
             layer=hidden_layer,
         )
-        ## TEMPL: BYOL ##
-        self.online_predictor = ProjectorMLP(
-            dim=projection_size,
-            hidden_size=projection_hidden_size,
-            projection_size=projection_size,
-        )
+
+        if dropout > 0:
+            self.online_predictor = UNO(
+                dim=projection_size,
+                hidden_size=projection_hidden_size,
+                projection_size=projection_size,
+                dropout=dropout,
+            )
+        else:
+            self.online_predictor = ProjectorMLP(
+                dim=projection_size,
+                hidden_size=projection_hidden_size,
+                projection_size=projection_size,
+            )
 
         self.target_encoder = None
         self.target_ema = ExponentialMovingAverage(beta=ema_beta)
