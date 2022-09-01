@@ -105,6 +105,7 @@ class NCSSLArguments:
     num_workers: int = field(default=8)
     save_stats_dir: str = field(default="./ssl_checkpoints")
     wavs_dir: str = field(default="../data/icbhi_16k/")
+    official_split: str = field(default=None)
 
     target_sample_rate: int = field(default=16000)
     n_mels: int = field(default=32)
@@ -132,13 +133,6 @@ class NCSSLArguments:
     freq_masking: int = field(default=10)
 
     configuration: InitVar[Dict] = field(default=dict())
-
-    def __init__(self, configuration: Dict) -> None:
-        for key, value in configuration.items():
-            try:
-                setattr(self, key, value)
-            except AttributeError:
-                raise AttributeError(f"{key} is not a valid argument of NCSSLArguments")
 
 
 def yaml_to_args(

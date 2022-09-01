@@ -5,6 +5,7 @@ wandb: True  # if False, Tensorboard is used
 num_workers: 8
 save_stats_dir: !!str ssl_checkpoints
 wavs_dir: !!str /home/ncl/yh/odio/datasets/lung/icbhi_16k
+official_split: !!str /home/ncl/yh/UNOprocess/icbhi_data/icbhi_train_test_split.csv
 
 target_sample_rate: 16000
 n_mels: 32
@@ -24,7 +25,7 @@ hidden_layer: "to_latent"
 projection_hidden_size: 2048
 projection_size: 256
 use_momentum: True
-dropout: !!float 0.5
+dropout: !!float 0.0
 
 spec_width_1: 700
 spec_width_2: 512
