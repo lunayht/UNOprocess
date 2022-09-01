@@ -6,8 +6,12 @@ sys.path.append(os.path.abspath(os.path.join("", "..")))
 
 from typing import Dict, Union
 
+
 import pandas as pd
 import pytorch_lightning as pl
+import randomname
+import torch
+
 from configs_ import DataArguments, FrontendArguments, ModelArguments, TrainArguments
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
@@ -109,3 +113,19 @@ def set_trainer(
     }
 
     return pl.Trainer(**trainer_args)
+
+
+def train_init(seed: int = 99) -> str:
+    r"""Initialize the training: set random seed and preparing torch backend.
+
+    Return:
+        suffix: suffix of the experiment name.
+    """
+    suffix = randomname.get_name()
+
+    pl.seed_everything(seed, workers=True)
+    torch.backends.cudnn.benchmark = True
+    torch.autograd.set_detect_anomaly(False)
+    torch.autograd.profiler.profile(False)
+    torch.autograd.profiler.emit_nvtx(False)
+    return suffix
