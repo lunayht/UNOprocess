@@ -370,7 +370,7 @@ class NCSSLPretrainModule(pl.LightningModule):
             projection_size=self.configs.projection_size,
             projection_hidden_size=self.configs.projection_hidden_size,
             augment_fn=augment_1,
-            augment_fn_2=augment_2,
+            augment_fn2=augment_2,
             use_momentum=self.configs.use_momentum,
             dropout=self.configs.dropout,
         )
@@ -396,7 +396,7 @@ class NCSSLPretrainModule(pl.LightningModule):
         optimizer = getattr(torch.optim, self.configs.optimizer)(
             self.parameters(), self.configs.lr, weight_decay=5e-7, betas=(0.9, 0.999)
         )
-        lr_scheduler = torch.optim.lr_scheduler.CosineAnnelingWarmRestarts(
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
             T_0=int(self.configs.max_epochs // 3),
             eta_min=self.configs.lr * 0.1,
