@@ -10,7 +10,7 @@ import torchaudio.transforms as AT
 import torchvision.transforms as VT
 from torch.utils.data import Dataset
 
-from configs_.arguments import FrontendArguments
+from configs_.arguments import FrontendArguments, NCSSLArguments
 
 cv2.setNumThreads(0)
 
@@ -22,8 +22,8 @@ class AudioDataset(Dataset):
         self,
         root: str,
         signals: np.ndarray,
-        labels: np.ndarray,
-        frontend_configs: FrontendArguments = None,
+        labels: np.ndarray = None,
+        frontend_configs: Union[FrontendArguments, NCSSLArguments] = None,
         mode: str = "train",
         get_weights: bool = False,
     ) -> None:
@@ -75,6 +75,17 @@ class AudioDataset(Dataset):
             )
             if self.frontend_configs.wav_aug_kwargs:
                 raise NotImplementedError  # add audio augmentation manually if needed.
+        elif self.mode == "ssl":
+            transform.append(
+                VT.RandomCrop(
+                    size=(
+                        self.frontend_configs.n_mels,
+                        self.frontend_configs.spec_width_1,
+                    ),
+                    pad_if_needed=True,
+                    padding_mode="reflect",
+                )
+            )
         else:
             transform.append(
                 VT.CenterCrop(
@@ -115,7 +126,7 @@ class AudioDataset(Dataset):
         self, idx: int
     ) -> Tuple[torch.Tensor, Union[int, Tuple[int, int, float]]]:
         wav_file = os.path.join(self.root, self.signals[idx])
-        label = self.labels[idx]
+        label = self.labels[idx] if self.mode != "ssl" else 0
 
         if self.mode == "train" and self.frontend_configs.mixup_alpha:
             mix_sample_idx = np.random.randint(0, len(self.signals) - 1)

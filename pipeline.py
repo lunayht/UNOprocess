@@ -12,8 +12,13 @@ import wandb
 from torch.utils.data import DataLoader
 
 import models
-from configs_ import (DataArguments, FrontendArguments, ModelArguments,
-                      NCSSLArguments, TrainArguments)
+from configs_ import (
+    DataArguments,
+    FrontendArguments,
+    ModelArguments,
+    NCSSLArguments,
+    TrainArguments,
+)
 from data import AudioDataset
 from misc.eval import Evaluation_Metrics
 from src.nc_ssl import NonContrastiveSSL
@@ -369,3 +374,50 @@ class NCSSLPretrainModule(pl.LightningModule):
             use_momentum=self.configs.use_momentum,
             dropout=self.configs.dropout,
         )
+
+    def prepare_data(self) -> None:
+        self.train_dataset = AudioDataset(
+            root=self.configs.wavs_dir,
+            signals=self.train_wavs,
+            frontend_configs=self.configs,
+            mode="ssl",
+        )
+
+    def train_dataloader(self) -> DataLoader:
+        return DataLoader(
+            self.train_dataset,
+            batch_size=self.configs.batch_size,
+            shuffle=True,
+            num_workers=self.configs.num_workers,
+            pin_memory=True,
+        )
+
+    def configure_optimizers(self) -> torch.optim.Optimizer:
+        optimizer = getattr(torch.optim, self.configs.optimizer)(
+            self.parameters(), self.configs.lr, weight_decay=5e-7, betas=(0.9, 0.999)
+        )
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnelingWarmRestarts(
+            optimizer,
+            T_0=int(self.configs.max_epochs // 3),
+            eta_min=self.configs.lr * 0.1,
+        )
+        return {"optimizer": optimizer, "lr_scheduler": lr_scheduler}
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.learner(x)
+
+    def training_step(
+        self, batch: Tuple[torch.Tensor, int], batch_idx: int
+    ) -> Dict[str, float]:
+        x, _ = batch
+        loss = self(x)
+        self.log_dict(
+            {"loss": loss},
+            on_step=True,
+            on_epoch=True,
+        )
+        return {"loss": loss}
+
+    def on_before_zero_grad(self, _) -> None:
+        if self.learner.use_momentum:
+            self.learner.update_ema()
