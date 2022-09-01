@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchaudio.transforms as AT
 
-from uno import UNO
+from .uno import UNO
 
 
 class ExponentialMovingAverage:
